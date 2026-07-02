@@ -11,7 +11,7 @@ import {
   Plus, Filter, Download, Eye, Edit, Trash2, ArrowUpRight,
   ArrowDownRight, CheckCircle, AlertCircle, Wallet, CreditCard,
   Banknote, FlaskConical, Layers, ChevronRight, ChevronDown,
-  Barcode, Package2, RefreshCw, Clock, Star, Zap, Tag, Hash, Printer
+  Barcode, Package2, RefreshCw, Clock, Star, Zap, Tag, Hash, Printer, Palette
 } from "lucide-react";
 
 // ─── Reusable UI primitives ──────────────────────────────────────────────────
@@ -101,7 +101,7 @@ function StatCard({
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-xl font-bold font-sans tracking-tight text-white">{value}</p>
+        <p className="text-xl font-bold font-sans tracking-tight text-foreground">{value}</p>
         <p className="text-[11px] font-medium text-foreground/80">{label}</p>
         {sub && <p className="text-[10px] text-muted-foreground/60">{sub}</p>}
       </div>
@@ -122,12 +122,12 @@ function Dashboard({ medicines, transactions, suppliers }: { medicines: any[]; t
   ];
 
   const categoryChartData = [
-    { name: "Antibiotics", value: 28, color: "#3b82f6" },
-    { name: "Cardiac", value: 19, color: "#10b981" },
-    { name: "Vitamins", value: 16, color: "#f59e0b" },
-    { name: "Analgesics", value: 14, color: "#a855f7" },
-    { name: "GI", value: 13, color: "#06b6d4" },
-    { name: "Others", value: 10, color: "#64748b" },
+    { name: "Antibiotics", value: 28, color: "var(--chart-1)" },
+    { name: "Cardiac", value: 19, color: "var(--chart-2)" },
+    { name: "Vitamins", value: 16, color: "var(--chart-3)" },
+    { name: "Analgesics", value: 14, color: "var(--chart-4)" },
+    { name: "GI", value: 13, color: "var(--chart-5)" },
+    { name: "Others", value: 10, color: "var(--secondary-foreground)" },
   ];
 
   const totalSales = transactions.reduce((sum, t) => sum + t.amount, 0);
@@ -174,26 +174,26 @@ function Dashboard({ medicines, transactions, suppliers }: { medicines: any[]; t
               <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.15} />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="purchGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.15} />
-                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-3)" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="var(--chart-3)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="profGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tickFormatter={(v) => `${v/1000}k`} tick={{ fill: "#64748b", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: "#0f1623", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: "var(--foreground)", opacity: 0.6, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(v) => `${v/1000}k`} tick={{ fill: "var(--foreground)", opacity: 0.6, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--foreground)", borderRadius: 8, fontSize: 11 }} />
                 <Legend verticalAlign="bottom" align="left" iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 10, paddingTop: 10 }} />
-                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revGrad)" name="Revenue" />
-                <Area type="monotone" dataKey="purchase" stroke="#f59e0b" strokeWidth={2} fill="url(#purchGrad)" name="Purchase" />
-                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fill="url(#profGrad)" name="Profit" />
+                <Area type="monotone" dataKey="revenue" stroke="var(--chart-1)" strokeWidth={2} fill="url(#revGrad)" name="Revenue" />
+                <Area type="monotone" dataKey="purchase" stroke="var(--chart-3)" strokeWidth={2} fill="url(#purchGrad)" name="Purchase" />
+                <Area type="monotone" dataKey="profit" stroke="var(--chart-2)" strokeWidth={2} fill="url(#profGrad)" name="Profit" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -265,9 +265,9 @@ function Dashboard({ medicines, transactions, suppliers }: { medicines: any[]; t
                 return (
                   <tr key={tx.id} className="hover:bg-white/[0.01] transition-colors">
                     <td className="px-5 py-3.5 font-semibold text-blue-400 hover:underline cursor-pointer font-mono">{tx.id}</td>
-                    <td className="px-5 py-3.5 font-medium text-white">{tx.customer}</td>
+                    <td className="px-5 py-3.5 font-medium text-foreground">{tx.customer}</td>
                     <td className="px-5 py-3.5 text-muted-foreground">{tx.time}</td>
-                    <td className="px-5 py-3.5 text-white font-mono font-semibold">{tx.items}</td>
+                    <td className="px-5 py-3.5 text-foreground font-mono font-semibold">{tx.items}</td>
                     <td className="px-5 py-3.5 font-mono text-emerald-400 font-bold">PKR {tx.amount.toLocaleString()}</td>
                     <td className="px-5 py-3.5">
                       <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded border ${payClass}`}>
@@ -301,15 +301,20 @@ function MedicineManagement({
   setMedicines,
   categories,
   setCategories,
+  packagingUnits,
+  setPackagingUnits,
 }: {
   medicines: any[];
   setMedicines: React.Dispatch<React.SetStateAction<any[]>>;
   categories: string[];
   setCategories: React.Dispatch<React.SetStateAction<string[]>>;
+  packagingUnits: any[];
+  setPackagingUnits: React.Dispatch<React.SetStateAction<any[]>>;
 }) {
   const [search, setSearch] = useState("");
   const [selectedCat, setSelectedCat] = useState("All");
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingMed, setEditingMed] = useState<any | null>(null);
 
   // Form states
   const [name, setName] = useState("");
@@ -418,8 +423,128 @@ function MedicineManagement({
     };
 
     setMedicines([...medicines, newMed]);
+
+    const newDbPackaging = calculatedPackages.map((pkg: any) => ({
+      medicineId: newMed.id,
+      packageName: pkg.type,
+      baseUnit: baseUnit,
+      parentPackage: pkg.childUnit || "",
+      conversionQty: pkg.qty,
+      sellingPrice: pkg.mrp,
+      barcode: pkg.barcode,
+      status: "active"
+    }));
+    setPackagingUnits([...packagingUnits, ...newDbPackaging]);
+
     setIsAddOpen(false);
 
+    setName("");
+    setGeneric("");
+    setBrand("");
+    setMedCategory("");
+    setBatch("");
+    setExpiry("");
+    setBaseMrp(0);
+    setStock(0);
+    setBaseUnit("Tablet");
+    setBaseBarcode("");
+    setCustomPackages([]);
+  };
+
+  const handleUpdateMedicine = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMed) return;
+
+    if (!name || !medCategory || baseMrp <= 0 || stock < 0) {
+      alert("Fields missing or invalid.");
+      return;
+    }
+
+    // Barcode uniqueness check
+    const newBarcodes: string[] = [];
+    if (baseBarcode) newBarcodes.push(baseBarcode);
+    customPackages.forEach(p => {
+      if (p.barcode) newBarcodes.push(p.barcode);
+    });
+
+    const duplicateInForm = newBarcodes.filter((item, index) => newBarcodes.indexOf(item) !== index);
+    if (duplicateInForm.length > 0) {
+      alert(`Error: Duplicate barcode value "${duplicateInForm[0]}" detected in this form. Each barcode must be unique.`);
+      return;
+    }
+
+    for (const med of medicines) {
+      if (med.id === editingMed.id) continue;
+      if (med.packaging) {
+        for (const pkg of med.packaging) {
+          if (pkg.barcode && newBarcodes.includes(pkg.barcode)) {
+            alert(`Error: Barcode "${pkg.barcode}" is already registered to "${med.name}" (${pkg.type}). Barcodes must be unique.`);
+            return;
+          }
+        }
+      }
+    }
+
+    const calculatedPackages: any[] = [];
+    calculatedPackages.push({
+      type: baseUnit,
+      qty: 1,
+      childUnit: "",
+      ratio: 1,
+      mrp: baseMrp,
+      barcode: baseBarcode,
+    });
+
+    for (let i = 0; i < customPackages.length; i++) {
+      const pkg = customPackages[i];
+      const child = calculatedPackages.find(p => p.type === pkg.childUnit);
+      const childRatio = child ? child.ratio : 1;
+      const ratio = pkg.qty * childRatio;
+
+      calculatedPackages.push({
+        type: pkg.type,
+        qty: pkg.qty,
+        childUnit: pkg.childUnit,
+        ratio,
+        mrp: pkg.mrp,
+        barcode: pkg.barcode || "",
+      });
+    }
+
+    calculatedPackages.sort((a, b) => b.ratio - a.ratio);
+
+    setMedicines(medicines.map((m) => m.id === editingMed.id ? {
+      ...m,
+      name,
+      generic,
+      brand,
+      category: medCategory,
+      batch,
+      expiry,
+      mrp: baseMrp,
+      stock,
+      unit: baseUnit,
+      status: stock <= 0 ? "critical" : stock < 500 ? "low" : "active",
+      packaging: calculatedPackages,
+    } : m));
+
+    const cleanDbPackaging = calculatedPackages.map((pkg: any) => ({
+      medicineId: editingMed.id,
+      packageName: pkg.type,
+      baseUnit: baseUnit,
+      parentPackage: pkg.childUnit || "",
+      conversionQty: pkg.qty,
+      sellingPrice: pkg.mrp,
+      barcode: pkg.barcode,
+      status: "active"
+    }));
+
+    setPackagingUnits([
+      ...packagingUnits.filter((u: any) => u.medicineId !== editingMed.id),
+      ...cleanDbPackaging
+    ]);
+
+    setEditingMed(null);
     setName("");
     setGeneric("");
     setBrand("");
@@ -495,7 +620,7 @@ function MedicineManagement({
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-white/[0.05]">
-              {["ID", "Medicine SKU", "Generic Formula", "Brand", "Category", "MRP (Base)", "Stock (Base)", "Packaging Hierarchy", "Status"].map((h) => (
+              {["ID", "Medicine SKU", "Generic Formula", "Brand", "Category", "MRP (Base)", "Stock (Base)", "Packaging Hierarchy", "Status", "Actions"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-[11px] font-medium text-muted-foreground/70 uppercase">{h}</th>
               ))}
             </tr>
@@ -519,6 +644,36 @@ function MedicineManagement({
                   </div>
                 </td>
                 <td className="px-4 py-3"><StatusBadge status={m.status} /></td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => {
+                      setEditingMed(m);
+                      setName(m.name);
+                      setGeneric(m.generic);
+                      setBrand(m.brand);
+                      setMedCategory(m.category);
+                      setBatch(m.batch);
+                      setExpiry(m.expiry);
+                      setBaseMrp(m.mrp);
+                      setStock(m.stock);
+                      setBaseUnit(m.unit);
+                      const basePkg = m.packaging ? m.packaging.find((p: any) => p.ratio === 1) : null;
+                      setBaseBarcode(basePkg ? basePkg.barcode : "");
+                      const customPkgs = m.packaging ? m.packaging.filter((p: any) => p.ratio !== 1) : [];
+                      setCustomPackages(customPkgs.map((p: any) => ({
+                        type: p.type,
+                        qty: p.qty,
+                        childUnit: p.childUnit,
+                        mrp: p.mrp,
+                        barcode: p.barcode,
+                      })));
+                    }}
+                    className="p-1.5 text-primary hover:text-blue-400 hover:bg-sidebar-accent/50 rounded transition-all cursor-pointer"
+                    title="Edit Medicine SKU"
+                  >
+                    <Edit size={14} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -558,14 +713,14 @@ function MedicineManagement({
                   {isManagingCats ? (
                     <div className="border border-white/10 rounded-lg p-2 bg-white/[0.01] space-y-2">
                       <div className="flex gap-1">
-                        <input type="text" value={newCatInput} onChange={(e) => setNewCatInput(e.target.value)} placeholder="New category..." className="flex-1 px-2 py-1 rounded border border-white/10 bg-white/[0.03] text-white" />
+                        <input type="text" value={newCatInput} onChange={(e) => setNewCatInput(e.target.value)} placeholder="New category..." className="flex-1 px-2 py-1 rounded border border-border bg-muted text-foreground" />
                         <button type="button" onClick={handleAddCategory} className="px-2 py-1 bg-primary text-white rounded">+</button>
                       </div>
                       <div className="max-h-20 overflow-y-auto space-y-1">
                         {categories.map((c, idx) => (
                           <div key={c} className="flex items-center justify-between p-1 bg-white/[0.02] rounded text-[10px]">
                             {editingCatIndex === idx ? (
-                              <input type="text" value={editingCatValue} onChange={(e) => setEditingCatValue(e.target.value)} onBlur={() => handleRenameCategory(idx)} autoFocus className="bg-black text-white px-1 border border-primary w-20" />
+                              <input type="text" value={editingCatValue} onChange={(e) => setEditingCatValue(e.target.value)} onBlur={() => handleRenameCategory(idx)} autoFocus className="bg-muted text-foreground px-1 border border-primary w-20" />
                             ) : (
                               <span onDoubleClick={() => { setEditingCatIndex(idx); setEditingCatValue(c); }} className="cursor-pointer text-foreground">{c}</span>
                             )}
@@ -783,6 +938,244 @@ function MedicineManagement({
           </div>
         </div>
       )}
+
+      {editingMed && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-white/10 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-foreground">Edit Medicine: {editingMed.name}</h3>
+              <button onClick={() => setEditingMed(null)} className="text-muted-foreground hover:text-white cursor-pointer"><X size={18} /></button>
+            </div>
+
+            <form onSubmit={handleUpdateMedicine} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Medicine Name *</label>
+                  <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm text-foreground focus:outline-none" />
+                </div>
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Generic Formula *</label>
+                  <input type="text" required value={generic} onChange={(e) => setGeneric(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm text-foreground focus:outline-none" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Brand / Maker</label>
+                  <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm text-foreground focus:outline-none" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-muted-foreground font-medium">Category Selector *</label>
+                  </div>
+                  <select required value={medCategory} onChange={(e) => setMedCategory(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-xs text-foreground focus:outline-none">
+                    <option value="">-- Choose --</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c} className="bg-card text-foreground">{c}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3">
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Base MRP (Rs.) *</label>
+                  <input type="number" step="0.01" required value={baseMrp || ""} onChange={(e) => setBaseMrp(Number(e.target.value))} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm text-foreground focus:outline-none font-mono" />
+                </div>
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Base Stock Qty *</label>
+                  <input type="number" required value={stock || ""} onChange={(e) => setStock(Number(e.target.value))} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-sm text-foreground focus:outline-none font-mono" />
+                </div>
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Base Unit Type *</label>
+                  <select value={baseUnit} onChange={(e) => setBaseUnit(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-xs text-foreground focus:outline-none">
+                    <option value="Tablet">Tablet</option>
+                    <option value="Capsule">Capsule</option>
+                    <option value="Vial">Vial</option>
+                    <option value="Bottle">Bottle</option>
+                    <option value="ml">ml</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-muted-foreground block mb-1 font-medium">Base Barcode</label>
+                  <div className="flex gap-1">
+                    <input
+                      type="text"
+                      value={baseBarcode}
+                      onChange={(e) => setBaseBarcode(e.target.value)}
+                      placeholder="Scan / Type"
+                      className="w-full px-2 py-1 rounded border border-white/10 bg-white/[0.03] text-white font-mono text-[10px] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBaseBarcode("EAN" + Math.floor(100000000 + Math.random() * 900000000))}
+                      className="px-2 bg-white/[0.06] text-white rounded-lg text-[10px]"
+                    >
+                      Gen
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-white/10 rounded-xl p-4 bg-white/[0.01] space-y-3">
+                <h4 className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                  <Layers size={13} className="text-primary" />
+                  Packaging Hierarchy Conversions
+                </h4>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold">Package Unit Hierarchy Editor</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomPackages([
+                          ...customPackages,
+                          {
+                            type: "",
+                            qty: 10,
+                            childUnit: customPackages.length > 0 ? customPackages[customPackages.length - 1].type : baseUnit,
+                            mrp: 0,
+                            barcode: "",
+                          }
+                        ]);
+                      }}
+                      className="px-2.5 py-1 bg-primary text-white rounded text-[10px] font-semibold cursor-pointer"
+                    >
+                      + Add Package Level
+                    </button>
+                  </div>
+
+                  <div className="bg-white/[0.01] border border-white/5 rounded-lg p-3 space-y-2">
+                    <div className="flex justify-between items-center text-[10px] text-muted-foreground border-b border-white/5 pb-1">
+                      <span>Base Unit: {baseUnit || "Tablet"}</span>
+                      <span>Base Selling Price: Rs.{baseMrp.toFixed(2)}</span>
+                    </div>
+
+                    {customPackages.map((pkg, idx) => {
+                      const childOptions = [baseUnit, ...customPackages.slice(0, idx).map(p => p.type)].filter(Boolean);
+
+                      return (
+                        <div key={idx} className="grid grid-cols-5 gap-2 items-end bg-white/[0.02] p-2 rounded border border-white/5 text-[11px]">
+                          <div>
+                            <label className="text-[9px] text-muted-foreground block mb-0.5">Package Name</label>
+                            <input
+                              type="text"
+                              required
+                              value={pkg.type}
+                              onChange={(e) => {
+                                const list = [...customPackages];
+                                list[idx].type = e.target.value;
+                                setCustomPackages(list);
+                              }}
+                              placeholder="e.g. Strip"
+                              className="w-full px-2 py-1 rounded border border-white/10 bg-white/[0.03] text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] text-muted-foreground block mb-0.5">Contains Qty</label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              value={pkg.qty || ""}
+                              onChange={(e) => {
+                                const list = [...customPackages];
+                                list[idx].qty = Number(e.target.value);
+                                setCustomPackages(list);
+                              }}
+                              className="w-full px-2 py-1 rounded border border-white/10 bg-white/[0.03] text-white font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] text-muted-foreground block mb-0.5">Child Unit</label>
+                            <select
+                              value={pkg.childUnit}
+                              onChange={(e) => {
+                                const list = [...customPackages];
+                                list[idx].childUnit = e.target.value;
+                                setCustomPackages(list);
+                              }}
+                              className="w-full px-2 py-1 rounded border border-white/10 bg-white/[0.03] text-white text-[10px] focus:outline-none"
+                            >
+                              {childOptions.map((opt) => (
+                                <option key={opt} value={opt} className="bg-card text-foreground">{opt}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-[9px] text-muted-foreground block mb-0.5">Barcode</label>
+                            <div className="flex gap-1">
+                              <input
+                                type="text"
+                                value={pkg.barcode || ""}
+                                onChange={(e) => {
+                                  const list = [...customPackages];
+                                  list[idx].barcode = e.target.value;
+                                  setCustomPackages(list);
+                                }}
+                                placeholder="Scan/Type"
+                                className="w-full px-1.5 py-1 rounded border border-white/10 bg-white/[0.03] text-white font-mono text-[10px]"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const list = [...customPackages];
+                                  list[idx].barcode = "EAN" + Math.floor(100000000 + Math.random() * 900000000);
+                                  setCustomPackages(list);
+                                }}
+                                className="px-1 py-0.5 bg-white/[0.06] text-white rounded text-[8px]"
+                              >
+                                Gen
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-end gap-1">
+                            <div className="flex-1">
+                              <label className="text-[9px] text-muted-foreground block mb-0.5">Price (Rs.) *</label>
+                              <input
+                                type="number"
+                                required
+                                min="0.01"
+                                step="0.01"
+                                value={pkg.mrp || ""}
+                                onChange={(e) => {
+                                  const list = [...customPackages];
+                                  list[idx].mrp = Number(e.target.value);
+                                  setCustomPackages(list);
+                                }}
+                                className="w-full px-2 py-1 rounded border border-white/10 bg-white/[0.03] text-white font-mono"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCustomPackages(customPackages.filter((_, i) => i !== idx));
+                              }}
+                              className="p-1 text-red-400 hover:text-red-300 cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {customPackages.length === 0 && (
+                      <p className="text-[10px] text-muted-foreground text-center py-2">No custom packaging levels defined. Single base unit sales only.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 border-t border-white/10 pt-3">
+                <button type="button" onClick={() => setEditingMed(null)} className="px-4 py-2 border border-white/10 rounded-lg">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-emerald-500 text-white rounded-lg">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -801,6 +1194,8 @@ function POSBilling({
   printerConfig,
   activePrintInvoice,
   setActivePrintInvoice,
+  packagingUnits,
+  setPackagingUnits,
 }: {
   medicines: any[];
   setMedicines: React.Dispatch<React.SetStateAction<any[]>>;
@@ -813,6 +1208,8 @@ function POSBilling({
   printerConfig: any;
   activePrintInvoice: any;
   setActivePrintInvoice: React.Dispatch<React.SetStateAction<any>>;
+  packagingUnits: any[];
+  setPackagingUnits: React.Dispatch<React.SetStateAction<any[]>>;
 }) {
   const [cart, setCart] = useState<any[]>([]);
   const [search, setSearch] = useState("");
@@ -877,10 +1274,12 @@ function POSBilling({
   }
 
   const addItem = (med: any) => {
-    const defaultPkg = med.packaging && med.packaging.length > 0 ? med.packaging[med.packaging.length - 1] : { type: med.unit, ratio: 1, mrp: med.mrp };
-    const defaultUnit = defaultPkg.type;
-    const defaultRatio = defaultPkg.ratio;
-    const defaultMrp = defaultPkg.mrp;
+    const medUnits = packagingUnits.filter((u: any) => u.medicineId === med.id && u.status === "active");
+    // Find the base unit (where ratio is 1)
+    const basePkg = medUnits.find((u: any) => u.ratio === 1) || { packageName: med.unit, ratio: 1, sellingPrice: med.mrp };
+    const defaultUnit = basePkg.packageName;
+    const defaultRatio = basePkg.ratio;
+    const defaultMrp = basePkg.sellingPrice;
 
     const existingIndex = cart.findIndex((c) => c.id === med.id && c.unit === defaultUnit);
     if (existingIndex > -1) {
@@ -909,9 +1308,9 @@ function POSBilling({
     const med = medicines.find(m => m.id === id);
     if (!med) return;
 
-    const pkg = med.packaging ? med.packaging.find((p: any) => p.type === newUnit) : null;
+    const pkg = packagingUnits.find((u: any) => u.medicineId === id && u.packageName === newUnit && u.status === "active");
     const ratio = pkg ? pkg.ratio : 1;
-    const newMrp = pkg ? pkg.mrp : med.mrp;
+    const newMrp = pkg ? pkg.sellingPrice : med.mrp;
 
     setCart(cart.map((c) => c.id === id ? { ...c, unit: newUnit, mrp: newMrp, ratio } : c));
   };
@@ -1149,10 +1548,10 @@ function POSBilling({
                   {filteredMeds.map((m) => (
                     <button key={m.id} onClick={() => addItem(m)} className="w-full flex items-center justify-between px-4 py-2 hover:bg-white/[0.04] transition-colors text-left">
                       <div>
-                        <p className="text-xs font-semibold text-white">{m.name}</p>
+                        <p className="text-xs font-semibold text-foreground">{m.name}</p>
                         <p className="text-[10px] text-muted-foreground">{m.brand} · Stock: {m.stock} {m.unit}</p>
                       </div>
-                      <p className="text-xs font-mono text-emerald-400">Rs.{m.mrp.toFixed(2)}</p>
+                      <p className="text-xs font-mono text-emerald-400 font-bold">Rs.{m.mrp.toFixed(2)}</p>
                     </button>
                   ))}
                 </div>
@@ -1173,18 +1572,33 @@ function POSBilling({
                 {cart.map((item, index) => {
                   const lineTotal = item.mrp * item.qty * (1 - item.discount / 100);
                   const med = medicines.find(m => m.id === item.id);
-                  const packagingOptions = med && med.packaging ? med.packaging : [];
                   const baseUnitSymbol = med ? med.unit : "Tablet";
                   const availableBaseStock = med ? med.stock : 0;
+
+                  const medPackagingUnits = packagingUnits.filter((u: any) => u.medicineId === item.id && u.status === "active");
+                  const isTablet = baseUnitSymbol === "Tablet";
+                  const isSyrup = baseUnitSymbol === "ml" || baseUnitSymbol === "Bottle";
+
+                  const filteredPackagingOptions = medPackagingUnits.filter((pkg: any) => {
+                    const nameLower = pkg.packageName.toLowerCase();
+                    if (isTablet && (nameLower.includes("ml") || nameLower.includes("bottle") || nameLower.includes("vial"))) return false;
+                    if (isSyrup && (nameLower.includes("tablet") || nameLower.includes("strip") || nameLower.includes("box"))) return false;
+                    return true;
+                  });
+
+                  if (filteredPackagingOptions.length > 0 && !filteredPackagingOptions.some(p => p.packageName === baseUnitSymbol)) {
+                    filteredPackagingOptions.push({ packageName: baseUnitSymbol, ratio: 1 });
+                  }
+                  filteredPackagingOptions.sort((a, b) => b.ratio - a.ratio);
 
                   return (
                     <tr key={`${item.id}-${item.unit}-${index}`} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
                       <td className="px-4 py-2.5 font-medium text-foreground">{item.name}</td>
                       <td className="px-4 py-2.5">
-                        {packagingOptions.length > 0 ? (
+                        {filteredPackagingOptions.length > 0 ? (
                           <select value={item.unit} onChange={(e) => updateCartItemUnit(item.id, e.target.value)} className="bg-white/[0.03] border border-white/10 rounded px-1.5 py-0.5 text-[11px] text-foreground focus:outline-none">
-                            {packagingOptions.map((pkg: any) => (
-                              <option key={pkg.type} value={pkg.type} className="bg-card text-foreground">{pkg.type} (x{pkg.ratio})</option>
+                            {filteredPackagingOptions.map((pkg: any) => (
+                              <option key={pkg.packageName} value={pkg.packageName} className="bg-card text-foreground">{pkg.packageName} (x{pkg.ratio})</option>
                             ))}
                           </select>
                         ) : (
@@ -2916,10 +3330,12 @@ function ReportsPage({
   medicines,
   transactions,
   customers,
+  packagingUnits,
 }: {
   medicines: any[];
   transactions: any[];
   customers: any[];
+  packagingUnits: any[];
 }) {
   const cashTotal = transactions.filter(t => t.payment === "Cash").reduce((sum, t) => sum + t.amount, 0);
   const creditTotal = transactions.filter(t => t.payment === "Credit").reduce((sum, t) => sum + t.amount, 0);
@@ -2933,12 +3349,34 @@ function ReportsPage({
     { name: "EasyPaisa / JazzCash", value: walletTotal, color: "#8b5cf6" },
   ].filter(p => p.value > 0);
 
+  const getConversionBreakdown = (stock: number, medId: string, baseUnit: string) => {
+    const medUnits = packagingUnits.filter((u: any) => u.medicineId === medId && u.status === "active");
+    if (medUnits.length <= 1) {
+      return `${stock} ${baseUnit}`;
+    }
+    const sortedPkgs = [...medUnits].sort((a, b) => b.ratio - a.ratio);
+    let remaining = stock;
+    const parts: string[] = [];
+
+    for (const pkg of sortedPkgs) {
+      if (pkg.ratio === 1) continue;
+      const count = Math.floor(remaining / pkg.ratio);
+      if (count > 0) {
+        parts.push(`${count} ${pkg.packageName}`);
+        remaining %= pkg.ratio;
+      }
+    }
+    parts.push(`${remaining} ${baseUnit}`);
+    return parts.join(" + ");
+  };
+
   const packageConversations = medicines.map((m) => {
+    const medUnits = packagingUnits.filter((u: any) => u.medicineId === m.id && u.status === "active");
     const formulas: string[] = [];
-    if (m.packaging && m.packaging.length > 1) {
-      m.packaging.forEach((pkg: any) => {
-        if (pkg.ratio === 1) return;
-        formulas.push(`1 ${pkg.type} = ${pkg.qty} ${pkg.childUnit}`);
+    if (medUnits.length > 1) {
+      medUnits.forEach((pkg: any) => {
+        if (pkg.ratio === 1 || !pkg.parentPackage) return;
+        formulas.push(`1 ${pkg.parentPackage} = ${pkg.conversionQty} ${pkg.packageName}`);
       });
     }
     return {
@@ -3134,6 +3572,33 @@ function ReportsPage({
           </table>
         </div>
       </div>
+
+      <div className="rounded-xl border border-white/[0.07] bg-card shadow-xl overflow-hidden mt-4">
+        <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
+          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Inventory Conversion Report (Remaining Base Stock)</h4>
+          <span className="text-[10px] text-muted-foreground font-medium">Calculated dynamically to package levels</span>
+        </div>
+        <table className="w-full text-[11px]">
+          <thead>
+            <tr className="border-b border-white/[0.05] text-muted-foreground/70 uppercase">
+              <th className="px-4 py-2 text-left">Medicine SKU</th>
+              <th className="px-4 py-2 text-left">Base Unit</th>
+              <th className="px-4 py-2 text-right">Available Base Qty</th>
+              <th className="px-4 py-2 text-right font-mono">Conversion Breakdown</th>
+            </tr>
+          </thead>
+          <tbody>
+            {medicines.map((m) => (
+              <tr key={m.id} className="border-b border-white/[0.03] hover:bg-white/[0.01]">
+                <td className="px-4 py-2 text-white font-medium">{m.name}</td>
+                <td className="px-4 py-2"><Badge variant="outline">{m.unit}</Badge></td>
+                <td className="px-4 py-2 text-right font-mono font-semibold text-foreground">{m.stock.toLocaleString()} {m.unit}s</td>
+                <td className="px-4 py-2 text-right font-mono text-emerald-400 font-semibold">{getConversionBreakdown(m.stock, m.id, m.unit)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -3144,10 +3609,14 @@ function SettingsPage({
   printerConfig,
   setPrinterConfig,
   onTestPrint,
+  activeTheme,
+  setActiveTheme,
 }: {
   printerConfig: any;
   setPrinterConfig: React.Dispatch<React.SetStateAction<any>>;
   onTestPrint: () => void;
+  activeTheme: string;
+  setActiveTheme: (theme: string) => void;
 }) {
   const [localPrinter, setLocalPrinter] = useState(printerConfig);
 
@@ -3193,12 +3662,20 @@ function SettingsPage({
     },
   ];
 
+  const themesList = [
+    { id: "black-white", name: "Black & White", emoji: "⚫", description: "Dark Premium. High contrast, perfect for night operations.", previewClass: "theme-black-white bg-[#111827] text-[#f3f4f6]" },
+    { id: "pure-white", name: "Pure White", emoji: "⚪", description: "Professional Light. Clean & minimal daytime usage.", previewClass: "theme-pure-white bg-[#ffffff] text-[#111827]" },
+    { id: "mint-navy", name: "Mint & Deep Navy", emoji: "🌿", description: "Modern Slate Navy. Default Pharmacy ERP look.", previewClass: "theme-mint-navy bg-[#0f172a] text-[#f8fafc]" },
+    { id: "citrus-slate", name: "Citrus & Slate", emoji: "🍊", description: "Citrus Orange & Warm Slate. Perfect for POS terminals.", previewClass: "theme-citrus-slate bg-[#f8fafc] text-[#0f172a]" }
+  ];
+
   return (
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-bold text-foreground">Settings</h2>
         <p className="text-xs text-muted-foreground mt-0.5">System configurations & preferences</p>
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left Col - General settings */}
         <div className="space-y-4">
@@ -3352,6 +3829,115 @@ function SettingsPage({
               </button>
             </div>
           </form>
+        </div>
+      </div>
+
+      {/* Theme Settings Section */}
+      <div className="rounded-xl border border-white/[0.07] bg-card p-5 shadow-xl space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Palette size={15} className="text-primary" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-foreground">Theme Settings</h4>
+              <p className="text-[10px] text-muted-foreground">Select, preview and apply color themes</p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setActiveTheme("mint-navy");
+              alert("Reset to default Mint & Deep Navy theme!");
+            }}
+            className="px-3 py-1 rounded border border-white/10 hover:bg-white/[0.04] text-[11px] text-white font-medium cursor-pointer"
+          >
+            Reset to Default Theme
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {themesList.map((t) => {
+            const isSelected = activeTheme === t.id;
+            return (
+              <div
+                key={t.id}
+                onClick={() => setActiveTheme(t.id)}
+                className={`relative rounded-xl border p-4 flex flex-col justify-between gap-4 cursor-pointer transition-all duration-200 ${
+                  isSelected ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-white/[0.07] hover:border-white/20 bg-white/[0.01]"
+                }`}
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{t.emoji}</span>
+                    <h5 className="font-semibold text-xs text-foreground">{t.name}</h5>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground leading-normal">{t.description}</p>
+                </div>
+
+                {/* Miniature Preview Card */}
+                <div className={`rounded-lg border border-white/5 p-2 text-[8px] space-y-2 select-none pointer-events-none ${t.previewClass}`}>
+                  <div className="flex gap-1.5 h-20">
+                    {/* Miniature Sidebar */}
+                    <div className="w-6 border-r border-white/10 flex flex-col gap-1 p-0.5">
+                      <div className="w-full h-1 bg-primary rounded-sm opacity-80" />
+                      <div className="w-full h-1 bg-white/20 rounded-sm" />
+                      <div className="w-full h-1 bg-white/25 rounded-sm" />
+                    </div>
+
+                    {/* Miniature Main Content */}
+                    <div className="flex-1 flex flex-col gap-2 p-0.5 overflow-hidden">
+                      {/* Mini KPI + Button */}
+                      <div className="flex items-center justify-between gap-1">
+                        <div className="rounded border border-white/5 p-1 flex-1 bg-white/[0.02] flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <div className="w-3 h-1 bg-white/30 rounded" />
+                            <div className="w-5 h-1.5 bg-primary rounded" />
+                          </div>
+                        </div>
+                        <div className="w-8 h-3.5 bg-primary text-white rounded flex items-center justify-center font-bold text-[6px]">
+                          Apply
+                        </div>
+                      </div>
+
+                      {/* Mini Table & Chart */}
+                      <div className="flex gap-1">
+                        {/* Mini Table */}
+                        <div className="flex-1 border border-white/5 rounded p-0.5 space-y-0.5">
+                          <div className="flex justify-between border-b border-white/10 pb-0.5">
+                            <span className="w-4 h-1 bg-white/40 rounded" />
+                            <span className="w-3 h-1 bg-white/40 rounded" />
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="w-3 h-1 bg-white/25 rounded" />
+                            <span className="w-4 h-1 bg-primary rounded" />
+                          </div>
+                        </div>
+
+                        {/* Mini Chart */}
+                        <div className="w-10 border border-white/5 rounded p-0.5 flex items-end gap-0.5 h-8 bg-white/[0.01]">
+                          <div className="w-1.5 bg-primary/40 rounded-t h-3" />
+                          <div className="w-1.5 bg-primary/70 rounded-t h-5" />
+                          <div className="w-1.5 bg-primary rounded-t h-7" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveTheme(t.id);
+                  }}
+                  className={`w-full py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                    isSelected ? "bg-primary text-primary-foreground" : "bg-white/[0.05] hover:bg-white/[0.09] text-white"
+                  }`}
+                >
+                  {isSelected ? "Active" : "Apply Theme"}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -3728,6 +4314,15 @@ export default function App() {
 
   const [activePrintInvoice, setActivePrintInvoice] = useState<any | null>(null);
 
+  // Dynamic theme selection
+  const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem("app-theme") || "mint-navy");
+
+  useEffect(() => {
+    document.documentElement.classList.remove("theme-black-white", "theme-pure-white", "theme-mint-navy", "theme-citrus-slate");
+    document.documentElement.classList.add(`theme-${activeTheme}`);
+    localStorage.setItem("app-theme", activeTheme);
+  }, [activeTheme]);
+
   // Dynamic state database
   const [medicines, setMedicines] = useState([
     { id: "MED-001", name: "Amoxicillin 500mg", generic: "Amoxicillin", brand: "Cipla", category: "Antibiotic", batch: "BT-2025-441", expiry: "2026-12", mrp: 2.25, stock: 1240, unit: "Tablet", status: "active", packaging: [
@@ -3765,6 +4360,36 @@ export default function App() {
       { type: "Carton", parentUnit: "", childUnit: "Vial", qty: 10, ratio: 10, mrp: 11000.00, barcode: "8908001" },
       { type: "Vial", parentUnit: "Carton", childUnit: "", qty: 1, ratio: 1, mrp: 1200.00, barcode: "8908002" }
     ]}
+  ]);
+
+  const [packagingUnits, setPackagingUnits] = useState<any[]>([
+    // MED-001 Amoxicillin 500mg
+    { medicineId: "MED-001", packageName: "Box", baseUnit: "Tablet", parentPackage: "", conversionQty: 10, sellingPrice: 170.00, barcode: "8901001", status: "active" },
+    { medicineId: "MED-001", packageName: "Strip", baseUnit: "Tablet", parentPackage: "Box", conversionQty: 10, sellingPrice: 20.00, barcode: "8901002", status: "active" },
+    { medicineId: "MED-001", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 2.25, barcode: "8901003", status: "active" },
+    // MED-002 Metformin 500mg
+    { medicineId: "MED-002", packageName: "Box", baseUnit: "Tablet", parentPackage: "", conversionQty: 10, sellingPrice: 140.00, barcode: "8902001", status: "active" },
+    { medicineId: "MED-002", packageName: "Strip", baseUnit: "Tablet", parentPackage: "Box", conversionQty: 10, sellingPrice: 15.00, barcode: "8902002", status: "active" },
+    { medicineId: "MED-002", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 1.80, barcode: "8902003", status: "active" },
+    // MED-003 Atorvastatin 20mg
+    { medicineId: "MED-003", packageName: "Box", baseUnit: "Tablet", parentPackage: "", conversionQty: 10, sellingPrice: 220.00, barcode: "8903001", status: "active" },
+    { medicineId: "MED-003", packageName: "Strip", baseUnit: "Tablet", parentPackage: "Box", conversionQty: 10, sellingPrice: 25.00, barcode: "8903002", status: "active" },
+    { medicineId: "MED-003", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 2.80, barcode: "8903003", status: "active" },
+    // MED-004 Paracetamol 650mg
+    { medicineId: "MED-004", packageName: "Strip", baseUnit: "Tablet", parentPackage: "", conversionQty: 10, sellingPrice: 8.50, barcode: "8904001", status: "active" },
+    { medicineId: "MED-004", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 1.00, barcode: "8904002", status: "active" },
+    // MED-005 Cetirizine 10mg
+    { medicineId: "MED-005", packageName: "Strip", baseUnit: "Tablet", parentPackage: "", conversionQty: 10, sellingPrice: 8.50, barcode: "8905001", status: "active" },
+    { medicineId: "MED-005", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 1.00, barcode: "8905002", status: "active" },
+    // MED-006 Omeprazole 20mg
+    { medicineId: "MED-006", packageName: "Bottle", baseUnit: "Capsule", parentPackage: "", conversionQty: 100, sellingPrice: 320.00, barcode: "8906001", status: "active" },
+    { medicineId: "MED-006", packageName: "Capsule", baseUnit: "Capsule", parentPackage: "Bottle", conversionQty: 1, sellingPrice: 3.50, barcode: "8906002", status: "active" },
+    // MED-007 Azithromycin 500mg
+    { medicineId: "MED-007", packageName: "Strip", baseUnit: "Tablet", parentPackage: "", conversionQty: 6, sellingPrice: 45.00, barcode: "8907001", status: "active" },
+    { medicineId: "MED-007", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 8.00, barcode: "8907002", status: "active" },
+    // MED-008 Insulin Glargine
+    { medicineId: "MED-008", packageName: "Carton", baseUnit: "Vial", parentPackage: "", conversionQty: 10, sellingPrice: 11000.00, barcode: "8908001", status: "active" },
+    { medicineId: "MED-008", packageName: "Vial", baseUnit: "Vial", parentPackage: "Carton", conversionQty: 1, sellingPrice: 1200.00, barcode: "8908002", status: "active" },
   ]);
 
   const [categories, setCategories] = useState(["Antibiotic", "Diabetic", "Cardiac", "Analgesic", "Antiallergic", "GI", "Vitamin", "Injection", "Syrup", "Drops", "Tablet", "Capsule"]);
@@ -3817,7 +4442,7 @@ export default function App() {
       case "dashboard":
         return <Dashboard medicines={medicines} transactions={transactions} suppliers={suppliers} />;
       case "medicines":
-        return <MedicineManagement medicines={medicines} setMedicines={setMedicines} categories={categories} setCategories={setCategories} />;
+        return <MedicineManagement medicines={medicines} setMedicines={setMedicines} categories={categories} setCategories={setCategories} packagingUnits={packagingUnits} setPackagingUnits={setPackagingUnits} />;
       case "pos":
         return (
           <POSBilling
@@ -3832,6 +4457,8 @@ export default function App() {
             printerConfig={printerConfig}
             activePrintInvoice={activePrintInvoice}
             setActivePrintInvoice={setActivePrintInvoice}
+            packagingUnits={packagingUnits}
+            setPackagingUnits={setPackagingUnits}
           />
         );
       case "inventory":
@@ -3857,12 +4484,14 @@ export default function App() {
       case "users":
         return <UserMgmtModule usersList={usersList} setUsersList={setUsersList} />;
       case "reports":
-        return <ReportsPage medicines={medicines} transactions={transactions} customers={customers} />;
+        return <ReportsPage medicines={medicines} transactions={transactions} customers={customers} packagingUnits={packagingUnits} />;
       case "settings":
         return (
           <SettingsPage
             printerConfig={printerConfig}
             setPrinterConfig={setPrinterConfig}
+            activeTheme={activeTheme}
+            setActiveTheme={setActiveTheme}
             onTestPrint={() => setActivePrintInvoice({
               id: "INV-20260628-144540-929",
               customer: "Walk-in Customer",
@@ -3910,11 +4539,11 @@ export default function App() {
                     key={item.id}
                     onClick={() => setActiveModule(item.id)}
                     title={sidebarCollapsed ? item.label : undefined}
-                    className={`w-full flex items-center gap-2.5 px-3 mx-1 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
-                      isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-white/[0.04]"
+                    className={`w-full flex items-center gap-2.5 px-3 mx-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                      isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/30"
                     }`}
                   >
-                    <item.icon size={14} className={isActive ? "text-primary" : "text-muted-foreground"} />
+                    <item.icon size={14} className={isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground"} />
                     {!sidebarCollapsed && <span>{item.label}</span>}
                     {!sidebarCollapsed && isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
                   </button>
@@ -3926,10 +4555,10 @@ export default function App() {
 
         {/* User profile footer */}
         <div className="border-t border-sidebar-border p-3 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center font-bold text-[10px] text-blue-400">AM</div>
+          <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center font-bold text-[10px] text-primary">AM</div>
           {!sidebarCollapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-white truncate">Dr. Arun Mehta</p>
+              <p className="text-xs font-semibold text-foreground truncate">Dr. Arun Mehta</p>
               <p className="text-[10px] text-muted-foreground">Admin Mode</p>
             </div>
           )}
@@ -3939,27 +4568,27 @@ export default function App() {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Topbar */}
-        <header className="h-14 flex items-center justify-between px-5 border-b border-white/[0.05] bg-sidebar/50 backdrop-blur flex-shrink-0">
+        <header className="h-14 flex items-center justify-between px-5 border-b border-sidebar-border bg-sidebar/50 backdrop-blur flex-shrink-0">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-white/[0.05] cursor-pointer">
+            <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-sidebar-accent/50 cursor-pointer">
               <Menu size={16} />
             </button>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>MedCare ERP</span>
               <ChevronRight size={12} />
-              <span className="text-foreground font-medium">{activeLabel}</span>
+              <span className="text-foreground font-semibold">{activeLabel}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/[0.05] cursor-pointer">
+            <button onClick={() => setNotifOpen(!notifOpen)} className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50 cursor-pointer">
               <Bell size={15} />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-red-500" />
             </button>
             {notifOpen && (
-              <div className="absolute right-5 top-12 w-72 rounded-xl border border-white/10 bg-card shadow-2xl z-50 overflow-hidden text-xs">
-                <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between font-bold text-white">
+              <div className="absolute right-5 top-12 w-72 rounded-xl border border-sidebar-border bg-card shadow-2xl z-50 overflow-hidden text-xs">
+                <div className="px-4 py-3 border-b border-sidebar-border flex items-center justify-between font-bold text-foreground">
                   <span>Notifications</span>
-                  <button onClick={() => setNotifOpen(false)} className="text-muted-foreground hover:text-white"><X size={13} /></button>
+                  <button onClick={() => setNotifOpen(false)} className="text-muted-foreground hover:text-foreground"><X size={13} /></button>
                 </div>
                 <div className="divide-y divide-white/[0.04]">
                   {alerts.map((a, i) => (

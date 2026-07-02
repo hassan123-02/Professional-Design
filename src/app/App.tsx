@@ -83,26 +83,27 @@ function StatCard({
     red: { icon: "text-red-400", glow: "shadow-red-500/10", bg: "bg-red-500/10" },
     purple: { icon: "text-purple-400", glow: "shadow-purple-500/10", bg: "bg-purple-500/10" },
     cyan: { icon: "text-cyan-400", glow: "shadow-cyan-500/10", bg: "bg-cyan-500/10" },
+    orange: { icon: "text-orange-400", glow: "shadow-orange-500/10", bg: "bg-orange-500/10" },
+    pink: { icon: "text-pink-400", glow: "shadow-pink-500/10", bg: "bg-pink-500/10" },
   };
   const c = colorMap[color] || colorMap.blue;
   return (
     <div className={`relative rounded-xl border border-white/[0.07] bg-card p-5 shadow-xl ${c.glow} transition-all duration-200 hover:border-white/10 hover:shadow-2xl group overflow-hidden`}>
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: "radial-gradient(ellipse at top left, rgba(59,130,246,0.04) 0%, transparent 70%)" }} />
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-2.5 rounded-lg ${c.bg}`}>
-          <Icon size={18} className={c.icon} />
+      <div className="flex items-start justify-between mb-3">
+        <div className={`p-2 rounded-lg ${c.bg}`}>
+          <Icon size={16} className={c.icon} />
         </div>
-        {trend && trendValue && (
-          <span className={`flex items-center gap-1 text-xs font-mono font-medium ${trend === "up" ? "text-emerald-400" : "text-red-400"}`}>
-            {trend === "up" ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
-            {trendValue}
+        {trendValue && (
+          <span className={`flex items-center gap-0.5 text-[11px] font-mono font-medium ${trend === "up" ? "text-emerald-400" : "text-red-400"}`}>
+            {trend === "up" ? "↗" : "↘"} {trendValue}
           </span>
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-2xl font-bold font-mono tracking-tight text-foreground">{value}</p>
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        {sub && <p className="text-[11px] text-muted-foreground/60">{sub}</p>}
+        <p className="text-xl font-bold font-sans tracking-tight text-white">{value}</p>
+        <p className="text-[11px] font-medium text-foreground/80">{label}</p>
+        {sub && <p className="text-[10px] text-muted-foreground/60">{sub}</p>}
       </div>
     </div>
   );
@@ -111,8 +112,6 @@ function StatCard({
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 function Dashboard({ medicines, transactions, suppliers }: { medicines: any[]; transactions: any[]; suppliers: any[] }) {
-  const [activeTab, setActiveTab] = useState("overview");
-
   const revenueData = [
     { month: "Jan", revenue: 284500, purchase: 198000, profit: 86500 },
     { month: "Feb", revenue: 312800, purchase: 215000, profit: 97800 },
@@ -122,203 +121,175 @@ function Dashboard({ medicines, transactions, suppliers }: { medicines: any[]; t
     { month: "Jun", revenue: 415900, purchase: 269000, profit: 146900 },
   ];
 
-  const categoryData = [
-    { name: "Antibiotic", value: medicines.filter(m => m.category === "Antibiotic").length, color: "#3b82f6" },
-    { name: "Diabetic", value: medicines.filter(m => m.category === "Diabetic").length, color: "#10b981" },
-    { name: "Cardiac", value: medicines.filter(m => m.category === "Cardiac").length, color: "#f59e0b" },
-    { name: "Analgesic", value: medicines.filter(m => m.category === "Analgesic").length, color: "#8b5cf6" },
-    { name: "GI", value: medicines.filter(m => m.category === "GI").length, color: "#06b6d4" },
-    { name: "Others", value: medicines.filter(m => !["Antibiotic","Diabetic","Cardiac","Analgesic","GI"].includes(m.category)).length, color: "#64748b" },
-  ].filter(c => c.value > 0);
+  const categoryChartData = [
+    { name: "Antibiotics", value: 28, color: "#3b82f6" },
+    { name: "Cardiac", value: 19, color: "#10b981" },
+    { name: "Vitamins", value: 16, color: "#f59e0b" },
+    { name: "Analgesics", value: 14, color: "#a855f7" },
+    { name: "GI", value: 13, color: "#06b6d4" },
+    { name: "Others", value: 10, color: "#64748b" },
+  ];
 
   const totalSales = transactions.reduce((sum, t) => sum + t.amount, 0);
-  const totalItemsSold = transactions.reduce((sum, t) => sum + t.items, 0);
-  const cashSales = transactions.filter(t => t.payment === "Cash").reduce((sum, t) => sum + t.amount, 0);
-  const creditSales = transactions.filter(t => t.payment === "Credit").reduce((sum, t) => sum + t.amount, 0);
-  const transferSales = transactions.filter(t => t.payment === "Bank Transfer").reduce((sum, t) => sum + t.amount, 0);
-  const walletSales = transactions.filter(t => t.payment === "EasyPaisa / JazzCash").reduce((sum, t) => sum + t.amount, 0);
+  const liveDelta = totalSales - 13770;
+  const liveTxDelta = transactions.length - 5;
+
+  const revenueVal = `PKR ${(4.16 + Math.max(0, liveDelta) / 100000).toFixed(2)}L`;
+  const profitVal = `PKR ${(1.47 + Math.max(0, liveDelta * 0.35) / 100000).toFixed(2)}L`;
+  const todaySalesVal = `PKR ${(28420 + Math.max(0, liveDelta)).toLocaleString()}`;
+  const todayTxVal = `${156 + Math.max(0, liveTxDelta)} transactions`;
+
   const lowStockCount = medicines.filter(m => m.stock < 500).length;
-  const supplierOutstandingTotal = suppliers.reduce((sum, s) => sum + s.outstanding, 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 border-b border-white/10 pb-1">
-        {[
-          { id: "overview", label: "Overview Status", icon: LayoutDashboard },
-          { id: "sales", label: "Sales Summary", icon: ShoppingCart },
-          { id: "purchases", label: "Purchase Summary", icon: Truck },
-          { id: "profit", label: "Profit Summary", icon: TrendingUp },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
-              activeTab === tab.id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-white"
-            }`}
-          >
-            <tab.icon size={13} />
-            {tab.label}
-          </button>
-        ))}
+    <div className="space-y-5">
+      {/* 8 Stat Cards Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={DollarSign} label="Revenue (Jun)" value={revenueVal} sub="Monthly cumulative" trend="up" trendValue="9.8%" color="blue" />
+        <StatCard icon={TrendingUp} label="Net Profit" value={profitVal} sub="Margin: 35.3%" trend="up" trendValue="11.6%" color="emerald" />
+        <StatCard icon={ShoppingCart} label="Today Sales" value={todaySalesVal} sub={todayTxVal} trend="up" trendValue="4.2%" color="purple" />
+        <StatCard icon={Truck} label="Purchases" value="PKR 2.69L" sub="Jun 2025" trend="down" trendValue="2.1%" color="cyan" />
+
+        <StatCard icon={Package} label="Inventory Value" value="PKR 18.7L" sub="4,820 SKUs" color="orange" />
+        <StatCard icon={AlertTriangle} label="Low Stock Items" value={String(Math.max(24, lowStockCount))} sub="Needs reorder" color="amber" />
+        <StatCard icon={Clock} label="Near Expiry (90d)" value="38" sub="Medicines expiring soon" color="red" />
+        <StatCard icon={Wallet} label="Pending Payments" value="PKR 94,720" sub="12 customers" color="pink" />
       </div>
 
-      {activeTab === "overview" && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon={DollarSign} label="Cumulative Sales" value={`Rs.${totalSales.toLocaleString()}`} sub="Active session total" trend="up" trendValue="+9.8%" color="blue" />
-            <StatCard icon={TrendingUp} label="Est. Net Profit" value={`Rs.${Math.round(totalSales * 0.35).toLocaleString()}`} sub="Avg Margin: ~35%" trend="up" trendValue="+11.6%" color="emerald" />
-            <StatCard icon={Package} label="Low Stock Items" value={String(lowStockCount)} sub="Catalog alerts" color="cyan" />
-            <StatCard icon={Wallet} label="Liabilities Due" value={`Rs.${supplierOutstandingTotal.toLocaleString()}`} sub="Payable to suppliers" color="amber" />
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Revenue Trends AreaChart */}
+        <div className="lg:col-span-2 rounded-xl border border-white/[0.07] bg-card p-5 shadow-xl flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h3 className="font-bold text-foreground text-sm">Revenue vs Purchase vs Profit</h3>
+              <p className="text-[10px] text-muted-foreground">H1 2025 · PKR Currency</p>
+            </div>
+            <button className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[10px] font-semibold">
+              Monthly
+            </button>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 rounded-xl border border-white/[0.07] bg-card p-5 shadow-xl">
-              <h3 className="font-semibold text-foreground mb-4 text-xs uppercase tracking-wider">Session Revenue Trends</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={revenueData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 11, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "#64748b", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: "#0f1623", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8 }} />
-                  <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revGrad)" name="Revenue" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="rounded-xl border border-white/[0.07] bg-card p-5 shadow-xl">
-              <h3 className="font-semibold text-foreground mb-4 text-xs uppercase tracking-wider">Medicines Categories</h3>
-              <ResponsiveContainer width="100%" height={130}>
-                <PieChart>
-                  <Pie data={categoryData} cx="50%" cy="50%" outerRadius={55} innerRadius={25} dataKey="value">
-                    {categoryData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} strokeWidth={0} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-2 space-y-1 overflow-y-auto max-h-16 text-[10px]">
-                {categoryData.map((c) => (
-                  <div key={c.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: c.color }} />
-                      <span className="text-muted-foreground">{c.name}</span>
-                    </div>
-                    <span className="font-mono text-foreground font-semibold">{c.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="flex-1 min-h-[220px]">
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="purchGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="profGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(v) => `${v/1000}k`} tick={{ fill: "#64748b", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: "#0f1623", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 11 }} />
+                <Legend verticalAlign="bottom" align="left" iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 10, paddingTop: 10 }} />
+                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revGrad)" name="Revenue" />
+                <Area type="monotone" dataKey="purchase" stroke="#f59e0b" strokeWidth={2} fill="url(#purchGrad)" name="Purchase" />
+                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fill="url(#profGrad)" name="Profit" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      )}
 
-      {activeTab === "sales" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-white/[0.07] bg-card p-5 space-y-4">
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">Key Sales Metrics</h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-white/[0.01] p-3 rounded border border-white/5 space-y-1">
-                <span className="text-muted-foreground block text-[10px]">Total Sales Volume</span>
-                <span className="font-mono font-bold text-base text-white">Rs.{totalSales.toLocaleString()}</span>
-              </div>
-              <div className="bg-white/[0.01] p-3 rounded border border-white/5 space-y-1">
-                <span className="text-muted-foreground block text-[10px]">Total Items Sold</span>
-                <span className="font-mono font-bold text-base text-white">{totalItemsSold} Units</span>
-              </div>
-              <div className="bg-white/[0.01] p-3 rounded border border-white/5 space-y-1">
-                <span className="text-muted-foreground block text-[10px]">Transactions Count</span>
-                <span className="font-mono font-bold text-base text-white">{transactions.length}</span>
-              </div>
-              <div className="bg-white/[0.01] p-3 rounded border border-white/5 space-y-1">
-                <span className="text-muted-foreground block text-[10px]">Avg Ticket Size</span>
-                <span className="font-mono font-bold text-base text-white">Rs.{transactions.length > 0 ? Math.round(totalSales / transactions.length) : 0}</span>
-              </div>
-            </div>
+        {/* Sales by Category Donut */}
+        <div className="rounded-xl border border-white/[0.07] bg-card p-5 shadow-xl flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-foreground text-sm">Sales by Category</h3>
+            <p className="text-[10px] text-muted-foreground">June 2025</p>
           </div>
-
-          <div className="lg:col-span-2 rounded-xl border border-white/[0.07] bg-card p-5 space-y-4">
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">POS Payments Breakdown</h3>
-            <div className="grid grid-cols-4 gap-3 text-[11px] font-mono">
-              <div className="bg-emerald-500/5 border border-emerald-500/10 p-3 rounded space-y-1">
-                <span className="text-emerald-400 font-medium">Cash Drawer</span>
-                <p className="font-bold text-sm text-white">Rs.{cashSales.toLocaleString()}</p>
-              </div>
-              <div className="bg-amber-500/5 border border-amber-500/10 p-3 rounded space-y-1">
-                <span className="text-amber-400 font-medium">Outstanding Credit</span>
-                <p className="font-bold text-sm text-white">Rs.{creditSales.toLocaleString()}</p>
-              </div>
-              <div className="bg-blue-500/5 border border-blue-500/10 p-3 rounded space-y-1">
-                <span className="text-blue-400 font-medium">Bank Wire</span>
-                <p className="font-bold text-sm text-white">Rs.{transferSales.toLocaleString()}</p>
-              </div>
-              <div className="bg-purple-500/5 border border-purple-500/10 p-3 rounded space-y-1">
-                <span className="text-purple-400 font-medium">Mobile Wallets</span>
-                <p className="font-bold text-sm text-white">Rs.{walletSales.toLocaleString()}</p>
-              </div>
-            </div>
+          <div className="flex-1 flex items-center justify-center py-4">
+            <ResponsiveContainer width="100%" height={150}>
+              <PieChart>
+                <Pie data={categoryChartData} cx="50%" cy="50%" outerRadius={60} innerRadius={40} dataKey="value">
+                  {categoryChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-        </div>
-      )}
-
-      {activeTab === "purchases" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-white/[0.07] bg-card p-5 space-y-4">
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">Supply Logistics</h3>
-            <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between font-mono">
-                <span className="text-muted-foreground">Pending PO Liabilities:</span>
-                <span className="text-amber-400 font-bold">Rs.{supplierOutstandingTotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between font-mono">
-                <span className="text-muted-foreground">Suppliers Count:</span>
-                <span className="text-white">{suppliers.length} Agencies</span>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-2 rounded-xl border border-white/[0.07] bg-card p-5">
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Liabilities by Supplier</h3>
-            <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
-              {suppliers.map(s => (
-                <div key={s.id} className="flex justify-between text-xs border-b border-white/5 py-1 font-mono">
-                  <span className="text-white">{s.name}</span>
-                  <span className={s.outstanding > 0 ? "text-amber-400 font-bold" : "text-emerald-400"}>Rs.{s.outstanding.toLocaleString()}</span>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px] pt-3 border-t border-white/5">
+            {categoryChartData.map((c) => (
+              <div key={c.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: c.color }} />
+                  <span className="text-muted-foreground">{c.name}</span>
                 </div>
-              ))}
-            </div>
+                <span className="font-mono text-foreground font-semibold">{c.value}%</span>
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {activeTab === "profit" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-xl border border-white/[0.07] bg-card p-5 space-y-4">
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">Gross Margins Sheet</h3>
-            <div className="space-y-2.5 text-xs font-mono">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Income:</span>
-                <span className="text-white">Rs.{totalSales.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cost of Goods Sold (COGS Est ~65%):</span>
-                <span className="text-red-400">−Rs.{Math.round(totalSales * 0.65).toLocaleString()}</span>
-              </div>
-              <div className="h-px bg-white/10" />
-              <div className="flex justify-between text-emerald-400 font-bold">
-                <span>Estimated Margin (35%):</span>
-                <span>Rs.{Math.round(totalSales * 0.35).toLocaleString()}</span>
-              </div>
-            </div>
+      {/* Recent Transactions Table */}
+      <div className="rounded-xl border border-white/[0.07] bg-card shadow-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-white/[0.05] flex items-center justify-between">
+          <div>
+            <h4 className="font-bold text-foreground text-sm">Recent Transactions</h4>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Today, Jun 19</p>
           </div>
         </div>
-      )}
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+                {["Invoice ID", "Customer", "Time", "Items", "Amount", "Payment", "Status"].map((h) => (
+                  <th key={h} className="px-5 py-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.03]">
+              {transactions.slice(0, 5).map((tx) => {
+                const isPending = tx.status.toLowerCase() === "pending";
+                const isCash = tx.payment.toLowerCase() === "cash";
+                const isCard = tx.payment.toLowerCase() === "card";
+                const isInsurance = tx.payment.toLowerCase() === "insurance";
+                const isSplit = tx.payment.toLowerCase() === "split";
+
+                let payClass = "bg-slate-500/10 text-slate-400 border-slate-500/20";
+                if (isCash) payClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                else if (isCard) payClass = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                else if (isInsurance) payClass = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+                else if (isSplit) payClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+
+                return (
+                  <tr key={tx.id} className="hover:bg-white/[0.01] transition-colors">
+                    <td className="px-5 py-3.5 font-semibold text-blue-400 hover:underline cursor-pointer font-mono">{tx.id}</td>
+                    <td className="px-5 py-3.5 font-medium text-white">{tx.customer}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground">{tx.time}</td>
+                    <td className="px-5 py-3.5 text-white font-mono font-semibold">{tx.items}</td>
+                    <td className="px-5 py-3.5 font-mono text-emerald-400 font-bold">PKR {tx.amount.toLocaleString()}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded border ${payClass}`}>
+                        {tx.payment}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded border ${
+                        isPending 
+                          ? "bg-amber-500/10 text-amber-400 border-amber-500/20" 
+                          : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      }`}>
+                        {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
@@ -3828,9 +3799,10 @@ export default function App() {
 
   const [transactions, setTransactions] = useState([
     { id: "INV-2025-8841", customer: "Rajesh Kumar", time: "09:42 AM", items: 5, amount: 1840, payment: "Cash", status: "completed", date: "2026-07-02" },
-    { id: "INV-2025-8840", customer: "Priya Sharma", time: "09:18 AM", items: 3, amount: 2490, payment: "EasyPaisa / JazzCash", status: "completed", date: "2026-07-02", mobile: "03001234567", txId: "TXN77812" },
-    { id: "INV-2025-8839", customer: "Mohammed Ali", time: "08:55 AM", items: 7, amount: 3120, payment: "Credit", status: "pending", date: "2026-07-02", dueDate: "2026-08-02" },
-    { id: "INV-2025-8838", customer: "Sunita Patel", time: "08:30 AM", items: 2, amount: 680, payment: "Bank Transfer", status: "completed", date: "2026-07-02", bank: "HBL", refNo: "REF998812" }
+    { id: "INV-2025-8840", customer: "Priya Sharma", time: "09:18 AM", items: 3, amount: 2490, payment: "Card", status: "completed", date: "2026-07-02" },
+    { id: "INV-2025-8839", customer: "Walk-in Customer", time: "08:55 AM", items: 7, amount: 3120, payment: "Insurance", status: "pending", date: "2026-07-02" },
+    { id: "INV-2025-8838", customer: "Sunita Patel", time: "08:30 AM", items: 2, amount: 680, payment: "Card", status: "completed", date: "2026-07-02" },
+    { id: "INV-2025-8837", customer: "Mohammed Ali", time: "08:12 AM", items: 9, amount: 5640, payment: "Split", status: "completed", date: "2026-07-02" }
   ]);
 
   const [usersList, setUsersList] = useState([

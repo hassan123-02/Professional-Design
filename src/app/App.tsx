@@ -4372,9 +4372,9 @@ export default function App() {
       { type: "Strip", parentUnit: "", childUnit: "Tablet", qty: 10, ratio: 10, mrp: 8.50, barcode: "8905001" },
       { type: "Tablet", parentUnit: "Strip", childUnit: "", qty: 1, ratio: 1, mrp: 1.00, barcode: "8905002" }
     ]},
-    { id: "MED-006", name: "Omeprazole 20mg", generic: "Omeprazole", brand: "AstraZeneca", category: "GI", batch: "BT-2025-449", expiry: "2027-01", mrp: 3.50, stock: 220, unit: "Capsule", status: "low", packaging: [
-      { type: "Bottle", parentUnit: "", childUnit: "Capsule", qty: 100, ratio: 100, mrp: 320.00, barcode: "8906001" },
-      { type: "Capsule", parentUnit: "Bottle", childUnit: "", qty: 1, ratio: 1, mrp: 3.50, barcode: "8906002" }
+    { id: "MED-006", name: "Omeprazole Syrup", generic: "Omeprazole", brand: "AstraZeneca", category: "GI", batch: "BT-2025-449", expiry: "2027-01", mrp: 3.50, stock: 220, unit: "ml", status: "low", packaging: [
+      { type: "Bottle", parentUnit: "", childUnit: "ml", qty: 100, ratio: 100, mrp: 320.00, barcode: "8906001" },
+      { type: "ml", parentUnit: "Bottle", childUnit: "", qty: 1, ratio: 1, mrp: 3.50, barcode: "8906002" }
     ]},
     { id: "MED-007", name: "Azithromycin 500mg", generic: "Azithromycin", brand: "Pfizer", category: "Antibiotic", batch: "BT-2025-388", expiry: "2027-06", mrp: 8.00, stock: 640, unit: "Tablet", status: "active", packaging: [
       { type: "Strip", parentUnit: "", childUnit: "Tablet", qty: 6, ratio: 6, mrp: 45.00, barcode: "8907001" },
@@ -4405,9 +4405,9 @@ export default function App() {
     // MED-005 Cetirizine 10mg
     { medicineId: "MED-005", packageName: "Strip", baseUnit: "Tablet", parentPackage: "", conversionQty: 10, sellingPrice: 8.50, barcode: "8905001", status: "active" },
     { medicineId: "MED-005", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 1.00, barcode: "8905002", status: "active" },
-    // MED-006 Omeprazole 20mg
-    { medicineId: "MED-006", packageName: "Bottle", baseUnit: "Capsule", parentPackage: "", conversionQty: 100, sellingPrice: 320.00, barcode: "8906001", status: "active" },
-    { medicineId: "MED-006", packageName: "Capsule", baseUnit: "Capsule", parentPackage: "Bottle", conversionQty: 1, sellingPrice: 3.50, barcode: "8906002", status: "active" },
+    // MED-006 Omeprazole Syrup
+    { medicineId: "MED-006", packageName: "Bottle", baseUnit: "ml", parentPackage: "", conversionQty: 100, sellingPrice: 320.00, barcode: "8906001", status: "active" },
+    { medicineId: "MED-006", packageName: "ml", baseUnit: "ml", parentPackage: "Bottle", conversionQty: 1, sellingPrice: 3.50, barcode: "8906002", status: "active" },
     // MED-007 Azithromycin 500mg
     { medicineId: "MED-007", packageName: "Strip", baseUnit: "Tablet", parentPackage: "", conversionQty: 6, sellingPrice: 45.00, barcode: "8907001", status: "active" },
     { medicineId: "MED-007", packageName: "Tablet", baseUnit: "Tablet", parentPackage: "Strip", conversionQty: 1, sellingPrice: 8.00, barcode: "8907002", status: "active" },

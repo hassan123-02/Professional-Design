@@ -1764,7 +1764,7 @@ function POSBilling({
 
         return (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-card border border-white/10 rounded-2xl p-6 w-full max-w-xl shadow-2xl space-y-4 text-xs text-foreground">
+            <div className="bg-card border border-white/10 rounded-2xl p-6 w-full max-w-xl shadow-2xl space-y-4 text-xs text-foreground max-h-[90vh] overflow-y-auto">
               {/* Header block */}
               <div className="flex items-start justify-between border-b border-white/5 pb-3">
                 <div className="flex gap-3">
@@ -1783,10 +1783,20 @@ function POSBilling({
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-[9px] text-muted-foreground uppercase block mb-0.5">Sale Price / {mainUnit.packageName}</span>
-                  <span className="text-lg font-bold text-primary block">Rs.{(mainUnit.sellingPrice).toFixed(2)}</span>
-                  <span className="text-[10px] text-muted-foreground line-through">MRP Rs.{(mainUnit.sellingPrice * 0.9).toFixed(2)}</span>
+                <div className="flex gap-2 items-start text-right">
+                  <div>
+                    <span className="text-[9px] text-muted-foreground uppercase block mb-0.5">Sale Price / {mainUnit.packageName}</span>
+                    <span className="text-lg font-bold text-primary block">Rs.{(mainUnit.sellingPrice).toFixed(2)}</span>
+                    <span className="text-[10px] text-muted-foreground line-through font-mono">MRP Rs.{(mainUnit.sellingPrice * 0.9).toFixed(2)}</span>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={() => setSelectedPopupMed(null)} 
+                    className="p-1 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground cursor-pointer transition-all"
+                    title="Close selection"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
               </div>
 

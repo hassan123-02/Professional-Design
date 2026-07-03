@@ -1772,7 +1772,7 @@ function POSBilling({
                     <Pill size={20} />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-sm font-bold tracking-tight text-white uppercase">{selectedPopupMed.name}</h3>
+                    <h3 className="text-sm font-bold tracking-tight text-foreground uppercase">{selectedPopupMed.name}</h3>
                     <p className="text-[10px] text-muted-foreground">{selectedPopupMed.generic}</p>
                     <div className="flex flex-wrap gap-1 mt-1 text-[9px]">
                       <span className="bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground font-mono">SKU: {selectedPopupMed.id}</span>
@@ -1822,7 +1822,7 @@ function POSBilling({
                         }`}
                       >
                         <div className="flex justify-between items-center w-full mb-1">
-                          <span className="font-bold text-white text-[11px]">{u.packageName}</span>
+                          <span className="font-bold text-foreground text-[11px]">{u.packageName}</span>
                           <span className={`text-[8px] px-1 rounded uppercase font-bold ${
                             isBase ? "bg-cyan-500/10 text-cyan-400" : "bg-primary/10 text-primary"
                           }`}>{isBase ? "Sub Unit" : "Main Unit"}</span>
@@ -1850,7 +1850,7 @@ function POSBilling({
                       setPopDiscRs((popPrice * val) * (popDiscPct / 100));
                       setPopExtraDiscRs((popPrice * val) * (popExtraDiscPct / 100));
                     }}
-                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1875,7 +1875,7 @@ function POSBilling({
                       setPopDiscRs((val * popQty) * (popDiscPct / 100));
                       setPopExtraDiscRs((val * popQty) * (popExtraDiscPct / 100));
                     }}
-                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -1889,7 +1889,7 @@ function POSBilling({
                         setPopDiscPct(val);
                         setPopDiscRs((popPrice * popQty) * (val / 100));
                       }}
-                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1903,7 +1903,7 @@ function POSBilling({
                         const pct = (popPrice * popQty) > 0 ? (val / (popPrice * popQty)) * 100 : 0;
                         setPopDiscPct(pct);
                       }}
-                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1919,7 +1919,7 @@ function POSBilling({
                         setPopExtraDiscPct(val);
                         setPopExtraDiscRs((popPrice * popQty) * (val / 100));
                       }}
-                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1933,7 +1933,7 @@ function POSBilling({
                         const pct = (popPrice * popQty) > 0 ? (val / (popPrice * popQty)) * 100 : 0;
                         setPopExtraDiscPct(pct);
                       }}
-                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1944,7 +1944,7 @@ function POSBilling({
                     min="0"
                     value={popFreeQty}
                     onChange={(e) => setPopFreeQty(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-foreground focus:outline-none"
                   />
                 </div>
               </div>
@@ -1952,7 +1952,7 @@ function POSBilling({
               {/* Gross total banner */}
               <div className="flex items-center justify-between bg-white/[0.03] border border-white/5 px-4 py-2.5 rounded-xl text-[11px]">
                 <span className="text-muted-foreground">Gross Total ({popQty} {selectedUnitCard.packageName} &times; Rs.{popPrice.toFixed(2)})</span>
-                <span className="text-sm font-bold text-white font-mono">Rs.{grossTotal.toFixed(2)}</span>
+                <span className="text-sm font-bold text-foreground font-mono">Rs.{grossTotal.toFixed(2)}</span>
               </div>
 
               {/* Footer actions */}
@@ -1960,7 +1960,7 @@ function POSBilling({
                 <button
                   type="button"
                   onClick={() => alert(`Printing barcode label for ${selectedPopupMed.name}...`)}
-                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white"
+                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground"
                 >
                   Print Label
                 </button>
@@ -1968,7 +1968,7 @@ function POSBilling({
                   <button
                     type="button"
                     onClick={() => setSelectedPopupMed(null)}
-                    className="px-4 py-2 border border-white/10 rounded-lg text-muted-foreground hover:text-white hover:bg-white/5"
+                    className="px-4 py-2 border border-white/10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5"
                   >
                     Cancel
                   </button>

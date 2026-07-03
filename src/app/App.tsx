@@ -1234,6 +1234,17 @@ function POSBilling({
   const [search, setSearch] = useState("");
   const [payMethod, setPayMethod] = useState("Cash");
 
+  // Selection Popup States
+  const [selectedPopupMed, setSelectedPopupMed] = useState<any | null>(null);
+  const [selectedUnitCard, setSelectedUnitCard] = useState<any | null>(null);
+  const [popQty, setPopQty] = useState<number>(1);
+  const [popPrice, setPopPrice] = useState<number>(0);
+  const [popDiscPct, setPopDiscPct] = useState<number>(0);
+  const [popDiscRs, setPopDiscRs] = useState<number>(0);
+  const [popExtraDiscPct, setPopExtraDiscPct] = useState<number>(0);
+  const [popExtraDiscRs, setPopExtraDiscRs] = useState<number>(0);
+  const [popFreeQty, setPopFreeQty] = useState<number>(0);
+
   const [cashReceived, setCashReceived] = useState<number>(0);
   const [creditCustomerId, setCreditCustomerId] = useState("");
   const [creditDueDate, setCreditDueDate] = useState("2026-08-02");
@@ -1292,35 +1303,29 @@ function POSBilling({
     );
   }
 
-  const addItem = (med: any) => {
+  const openSelectionPopup = (med: any, matchedUnit?: any) => {
+    setSelectedPopupMed(med);
     const medUnits = packagingUnits.filter((u: any) => u.medicineId === med.id && u.status === "active");
-    // Find the base unit (where packageName equals the baseUnit name)
-    const basePkg = medUnits.find((u: any) => u.packageName === u.baseUnit) || { packageName: med.unit, sellingPrice: med.mrp };
-    const defaultUnit = basePkg.packageName;
-    const defaultRatio = 1;
-    const defaultMrp = basePkg.sellingPrice;
-
-    const existingIndex = cart.findIndex((c) => c.id === med.id && c.unit === defaultUnit);
-    if (existingIndex > -1) {
-      const updated = [...cart];
-      updated[existingIndex].qty += 1;
-      setCart(updated);
-    } else {
-      setCart([
-        ...cart,
-        {
-          id: med.id,
-          name: med.name,
-          qty: 1,
-          unit: defaultUnit,
-          mrp: defaultMrp,
-          discount: 0,
-          ratio: defaultRatio,
-          baseMrp: med.mrp,
-        },
-      ]);
+    let defaultCard = null;
+    if (matchedUnit) {
+      defaultCard = medUnits.find(u => u.packageName === matchedUnit.packageName);
     }
+    if (!defaultCard) {
+      defaultCard = medUnits.find(u => u.packageName === u.baseUnit) || medUnits[0];
+    }
+    setSelectedUnitCard(defaultCard);
+    setPopQty(1);
+    setPopPrice(defaultCard ? defaultCard.sellingPrice : med.mrp);
+    setPopDiscPct(0);
+    setPopDiscRs(0);
+    setPopExtraDiscPct(0);
+    setPopExtraDiscRs(0);
+    setPopFreeQty(0);
     setSearch("");
+  };
+
+  const addItem = (med: any) => {
+    openSelectionPopup(med);
   };
 
   const updateCartItemUnit = (id: string, newUnit: string) => {
@@ -1350,45 +1355,14 @@ function POSBilling({
     let foundMed: any = null;
     let foundPkg: any = null;
 
-    for (const med of medicines) {
-      if (med.packaging) {
-        const pkg = med.packaging.find((p: any) => p.barcode === barcodeInput);
-        if (pkg) {
-          foundMed = med;
-          foundPkg = pkg;
-          break;
-        }
-      }
+    const matchedUnit = packagingUnits.find(u => u.barcode === barcodeInput && u.status === "active");
+    if (matchedUnit) {
+      foundMed = medicines.find(m => m.id === matchedUnit.medicineId);
+      foundPkg = matchedUnit;
     }
 
     if (foundMed && foundPkg) {
-      // Check stock limit
-      if (foundMed.stock < foundPkg.ratio) {
-        alert(`Insufficient stock for ${foundMed.name} in package unit ${foundPkg.type}. Available base units: ${foundMed.stock}`);
-        setBarcodeInput("");
-        return;
-      }
-
-      const existingIndex = cart.findIndex((c) => c.id === foundMed.id && c.unit === foundPkg.type);
-      if (existingIndex > -1) {
-        const updated = [...cart];
-        updated[existingIndex].qty += 1;
-        setCart(updated);
-      } else {
-        setCart([
-          ...cart,
-          {
-            id: foundMed.id,
-            name: foundMed.name,
-            qty: 1,
-            unit: foundPkg.type,
-            mrp: foundPkg.mrp,
-            discount: 0,
-            ratio: foundPkg.ratio,
-            baseMrp: foundMed.mrp,
-          },
-        ]);
-      }
+      openSelectionPopup(foundMed, foundPkg);
     } else {
       alert(`Barcode "${barcodeInput}" not found in catalog.`);
     }
@@ -1770,6 +1744,277 @@ function POSBilling({
           <button onClick={handleCompleteSale} className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg text-xs font-semibold cursor-pointer">Complete Checkout · Rs.{total.toFixed(2)}</button>
         </div>
       </div>
+
+      {/* Medicine Selection Popup */}
+      {selectedPopupMed && selectedUnitCard && (() => {
+        const medUnits = packagingUnits.filter((u: any) => u.medicineId === selectedPopupMed.id && u.status === "active")
+          .map((u: any) => ({
+            ...u,
+            ratio: u.ratio || getUnitRatio(u.packageName, selectedPopupMed.id, packagingUnits)
+          }));
+        
+        // Find main unit (largest ratio) and base unit (ratio 1)
+        const sortedUnits = [...medUnits].sort((a, b) => b.ratio - a.ratio);
+        const mainUnit = sortedUnits[0] || { packageName: selectedPopupMed.unit, ratio: 1, sellingPrice: selectedPopupMed.mrp };
+        const baseUnitSym = selectedPopupMed.unit;
+
+        // Auto-linking variables
+        const grossTotal = (popPrice * popQty) - popDiscRs - popExtraDiscRs;
+        const deductQty = (popQty * selectedUnitCard.ratio) / mainUnit.ratio;
+
+        return (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-card border border-white/10 rounded-2xl p-6 w-full max-w-xl shadow-2xl space-y-4 text-xs text-foreground">
+              {/* Header block */}
+              <div className="flex items-start justify-between border-b border-white/5 pb-3">
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                    <Pill size={20} />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-bold tracking-tight text-white uppercase">{selectedPopupMed.name}</h3>
+                    <p className="text-[10px] text-muted-foreground">{selectedPopupMed.generic}</p>
+                    <div className="flex flex-wrap gap-1 mt-1 text-[9px]">
+                      <span className="bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground font-mono">SKU: {selectedPopupMed.id}</span>
+                      <span className="bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground font-mono">Stock: {(selectedPopupMed.stock / mainUnit.ratio).toFixed(1)} {mainUnit.packageName}</span>
+                      <span className="bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground font-mono">Exp: {selectedPopupMed.expiry}</span>
+                      <span className="bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground font-mono">Batch: {selectedPopupMed.batch}</span>
+                      <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">ACTIVE</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-[9px] text-muted-foreground uppercase block mb-0.5">Sale Price / {mainUnit.packageName}</span>
+                  <span className="text-lg font-bold text-primary block">Rs.{(mainUnit.sellingPrice).toFixed(2)}</span>
+                  <span className="text-[10px] text-muted-foreground line-through">MRP Rs.{(mainUnit.sellingPrice * 0.9).toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Conversion bar */}
+              <div className="flex items-center justify-between bg-primary/5 border border-primary/10 px-3 py-2 rounded-lg font-mono text-[10px]">
+                <span className="text-primary font-semibold">1 {mainUnit.packageName} = {mainUnit.ratio} {baseUnitSym}</span>
+                <span className="text-emerald-400 font-semibold">1 {baseUnitSym} = {(1 / mainUnit.ratio).toFixed(3)} {mainUnit.packageName}</span>
+              </div>
+
+              {/* How do you want to sell cards selection */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">How do you want to sell this item?</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {sortedUnits.map((u: any) => {
+                    const isSelected = selectedUnitCard.packageName === u.packageName;
+                    const availableUnits = selectedPopupMed.stock / u.ratio;
+                    const isBase = u.ratio === 1;
+
+                    return (
+                      <button
+                        key={u.packageName}
+                        type="button"
+                        onClick={() => {
+                          setSelectedUnitCard(u);
+                          setPopPrice(u.sellingPrice);
+                          setPopDiscRs((u.sellingPrice * popQty) * (popDiscPct / 100));
+                          setPopExtraDiscRs((u.sellingPrice * popQty) * (popExtraDiscPct / 100));
+                        }}
+                        className={`flex flex-col text-left p-3 rounded-xl border transition-all ${
+                          isSelected 
+                            ? "border-primary bg-primary/5 shadow-lg shadow-primary/5 ring-1 ring-primary" 
+                            : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center w-full mb-1">
+                          <span className="font-bold text-white text-[11px]">{u.packageName}</span>
+                          <span className={`text-[8px] px-1 rounded uppercase font-bold ${
+                            isBase ? "bg-cyan-500/10 text-cyan-400" : "bg-primary/10 text-primary"
+                          }`}>{isBase ? "Sub Unit" : "Main Unit"}</span>
+                        </div>
+                        <span className="text-sm font-black text-primary mb-1.5">Rs.{u.sellingPrice.toFixed(2)}</span>
+                        <span className="text-[9px] text-muted-foreground font-mono">Available: {availableUnits.toFixed(0)} {u.packageName}</span>
+                        <span className="text-[9px] text-muted-foreground/60 font-mono mt-0.5">1 {mainUnit.packageName} = {mainUnit.ratio} {baseUnitSym}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Form Input fields */}
+              <div className="grid grid-cols-2 gap-3 bg-white/[0.01] border border-white/5 p-3 rounded-xl">
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold block mb-1">Qty ({selectedUnitCard.packageName.toUpperCase()})</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={popQty}
+                    onChange={(e) => {
+                      const val = Math.max(1, Number(e.target.value));
+                      setPopQty(val);
+                      setPopDiscRs((popPrice * val) * (popDiscPct / 100));
+                      setPopExtraDiscRs((popPrice * val) * (popExtraDiscPct / 100));
+                    }}
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold block mb-1">Selling Unit</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={selectedUnitCard.packageName}
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.01] border border-white/5 text-muted-foreground focus:outline-none"
+                  />
+                  <span className="text-[8px] text-muted-foreground/60 mt-1 block">Deducts {deductQty.toFixed(3)} {mainUnit.packageName} from stock</span>
+                </div>
+
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold block mb-1">Sale Price (Rs / Unit)</label>
+                  <input
+                    type="number"
+                    value={popPrice}
+                    onChange={(e) => {
+                      const val = Math.max(0, Number(e.target.value));
+                      setPopPrice(val);
+                      setPopDiscRs((val * popQty) * (popDiscPct / 100));
+                      setPopExtraDiscRs((val * popQty) * (popExtraDiscPct / 100));
+                    }}
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[8px] text-muted-foreground uppercase font-bold block mb-1">Discount (%)</label>
+                    <input
+                      type="number"
+                      value={popDiscPct}
+                      onChange={(e) => {
+                        const val = Math.max(0, Number(e.target.value));
+                        setPopDiscPct(val);
+                        setPopDiscRs((popPrice * popQty) * (val / 100));
+                      }}
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[8px] text-muted-foreground uppercase font-bold block mb-1">Discount (Rs)</label>
+                    <input
+                      type="number"
+                      value={popDiscRs}
+                      onChange={(e) => {
+                        const val = Math.max(0, Number(e.target.value));
+                        setPopDiscRs(val);
+                        const pct = (popPrice * popQty) > 0 ? (val / (popPrice * popQty)) * 100 : 0;
+                        setPopDiscPct(pct);
+                      }}
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[8px] text-muted-foreground uppercase font-bold block mb-1">Extra Disc (%)</label>
+                    <input
+                      type="number"
+                      value={popExtraDiscPct}
+                      onChange={(e) => {
+                        const val = Math.max(0, Number(e.target.value));
+                        setPopExtraDiscPct(val);
+                        setPopExtraDiscRs((popPrice * popQty) * (val / 100));
+                      }}
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[8px] text-muted-foreground uppercase font-bold block mb-1">Extra Disc (Rs)</label>
+                    <input
+                      type="number"
+                      value={popExtraDiscRs}
+                      onChange={(e) => {
+                        const val = Math.max(0, Number(e.target.value));
+                        setPopExtraDiscRs(val);
+                        const pct = (popPrice * popQty) > 0 ? (val / (popPrice * popQty)) * 100 : 0;
+                        setPopExtraDiscPct(pct);
+                      }}
+                      className="w-full px-1.5 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold block mb-1">Free Qty</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={popFreeQty}
+                    onChange={(e) => setPopFreeQty(Math.max(0, Number(e.target.value)))}
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/10 font-mono text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Gross total banner */}
+              <div className="flex items-center justify-between bg-white/[0.03] border border-white/5 px-4 py-2.5 rounded-xl text-[11px]">
+                <span className="text-muted-foreground">Gross Total ({popQty} {selectedUnitCard.packageName} &times; Rs.{popPrice.toFixed(2)})</span>
+                <span className="text-sm font-bold text-white font-mono">Rs.{grossTotal.toFixed(2)}</span>
+              </div>
+
+              {/* Footer actions */}
+              <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                <button
+                  type="button"
+                  onClick={() => alert(`Printing barcode label for ${selectedPopupMed.name}...`)}
+                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white"
+                >
+                  Print Label
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPopupMed(null)}
+                    className="px-4 py-2 border border-white/10 rounded-lg text-muted-foreground hover:text-white hover:bg-white/5"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const totalBaseQtyNeeded = popQty * selectedUnitCard.ratio;
+                      if (totalBaseQtyNeeded > selectedPopupMed.stock) {
+                        alert(`Insufficient stock! Maximum available is ${selectedPopupMed.stock} base units.`);
+                        return;
+                      }
+
+                      // Check uniqueness or update existing cart unit entry
+                      const newItem = {
+                        id: selectedPopupMed.id,
+                        name: selectedPopupMed.name,
+                        qty: popQty,
+                        unit: selectedUnitCard.packageName,
+                        mrp: popPrice,
+                        discount: popDiscPct,
+                        extraDiscountRs: popExtraDiscRs,
+                        ratio: selectedUnitCard.ratio,
+                        baseMrp: selectedPopupMed.mrp,
+                        freeQty: popFreeQty,
+                      };
+
+                      const existingIndex = cart.findIndex(c => c.id === newItem.id && c.unit === newItem.unit);
+                      if (existingIndex > -1) {
+                        const updated = [...cart];
+                        updated[existingIndex].qty += popQty;
+                        setCart(updated);
+                      } else {
+                        setCart([...cart, newItem]);
+                      }
+                      setSelectedPopupMed(null);
+                    }}
+                    className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-400 font-semibold"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

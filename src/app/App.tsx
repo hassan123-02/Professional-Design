@@ -294,6 +294,25 @@ function Dashboard({ medicines, transactions, suppliers }: { medicines: any[]; t
   );
 }
 
+// Helper to calculate packaging unit conversion ratio to base unit dynamically
+const getUnitRatio = (packageName: string, medicineId: string, packagingUnits: any[]): number => {
+  const medUnits = packagingUnits.filter((u: any) => u.medicineId === medicineId && u.status === "active");
+  const current = medUnits.find(u => u.packageName === packageName);
+  if (!current) return 1;
+  if (current.packageName === current.baseUnit) return 1;
+
+  let ratio = current.conversionQty;
+  let nextUnitName = medUnits.find(u => u.parentPackage === current.packageName)?.packageName;
+
+  while (nextUnitName && nextUnitName !== current.baseUnit) {
+    const nextUnit = medUnits.find(u => u.packageName === nextUnitName);
+    if (!nextUnit) break;
+    ratio *= nextUnit.conversionQty;
+    nextUnitName = medUnits.find(u => u.parentPackage === nextUnit.packageName)?.packageName;
+  }
+  return ratio;
+};
+
 // ─── Medicine Management ──────────────────────────────────────────────────────
 
 function MedicineManagement({
@@ -1275,10 +1294,10 @@ function POSBilling({
 
   const addItem = (med: any) => {
     const medUnits = packagingUnits.filter((u: any) => u.medicineId === med.id && u.status === "active");
-    // Find the base unit (where ratio is 1)
-    const basePkg = medUnits.find((u: any) => u.ratio === 1) || { packageName: med.unit, ratio: 1, sellingPrice: med.mrp };
+    // Find the base unit (where packageName equals the baseUnit name)
+    const basePkg = medUnits.find((u: any) => u.packageName === u.baseUnit) || { packageName: med.unit, sellingPrice: med.mrp };
     const defaultUnit = basePkg.packageName;
-    const defaultRatio = basePkg.ratio;
+    const defaultRatio = 1;
     const defaultMrp = basePkg.sellingPrice;
 
     const existingIndex = cart.findIndex((c) => c.id === med.id && c.unit === defaultUnit);
@@ -1586,18 +1605,23 @@ function POSBilling({
                     return true;
                   });
 
-                  if (filteredPackagingOptions.length > 0 && !filteredPackagingOptions.some(p => p.packageName === baseUnitSymbol)) {
-                    filteredPackagingOptions.push({ packageName: baseUnitSymbol, ratio: 1 });
+                  const optionsWithRatios = filteredPackagingOptions.map((p: any) => ({
+                    ...p,
+                    ratio: p.ratio || getUnitRatio(p.packageName, item.id, packagingUnits)
+                  }));
+
+                  if (optionsWithRatios.length > 0 && !optionsWithRatios.some(p => p.packageName === baseUnitSymbol)) {
+                    optionsWithRatios.push({ packageName: baseUnitSymbol, ratio: 1 });
                   }
-                  filteredPackagingOptions.sort((a, b) => b.ratio - a.ratio);
+                  optionsWithRatios.sort((a, b) => b.ratio - a.ratio);
 
                   return (
                     <tr key={`${item.id}-${item.unit}-${index}`} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
                       <td className="px-4 py-2.5 font-medium text-foreground">{item.name}</td>
                       <td className="px-4 py-2.5">
-                        {filteredPackagingOptions.length > 0 ? (
+                        {optionsWithRatios.length > 0 ? (
                           <select value={item.unit} onChange={(e) => updateCartItemUnit(item.id, e.target.value)} className="bg-white/[0.03] border border-white/10 rounded px-1.5 py-0.5 text-[11px] text-foreground focus:outline-none">
-                            {filteredPackagingOptions.map((pkg: any) => (
+                            {optionsWithRatios.map((pkg: any) => (
                               <option key={pkg.packageName} value={pkg.packageName} className="bg-card text-foreground">{pkg.packageName} (x{pkg.ratio})</option>
                             ))}
                           </select>
